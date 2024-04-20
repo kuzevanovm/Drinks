@@ -1,0 +1,13 @@
+# depslib dependency file v1.0
+1713606488 source:c:\языки\drinks\main.cpp
+	<iostream>
+	<vector>
+	<list>
+	"main.h"
+
+1713644045 c:\языки\drinks\main.h
+	<vector>
+	"Patterns.h"
+
+1713643796 c:\языки\drinks\patterns.h
+
