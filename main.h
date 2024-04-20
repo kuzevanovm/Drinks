@@ -2,6 +2,7 @@
 #define MainH
 
 #include <vector>
+#include <list>
 #include "Patterns.h"
 
 using namespace std;
@@ -130,6 +131,87 @@ public:
     void Sip() { wcout << L"Выпили молоко"; }
 };
 
+class Container
+{
+public:
+    virtual void AddDrink (DrinkPtr NewDrink)=0;
+    virtual int GetCount() const = 0;
+    virtual Iterator<DrinkPtr> *GetIterator()=0;
+};
+
+
+// Итератор для vector
+
+class VectorDrinkIterator : public Iterator<DrinkPtr>
+{
+private:
+    const vector<DrinkPtr> *VectorDrink;
+    vector<DrinkPtr>::const_iterator it;
+public:
+    void First() {it = VectorDrink->begin();}
+    void Next() {it++;}
+    bool IsDone() const {it == VectorDrink->end();}
+    DrinkPtr GetCurrent() const {return *it;}
+    VectorDrinkIterator(const vector<DrinkPtr> *vectorDrink)
+    {
+        VectorDrink = vectorDrink;
+        it = VectorDrink->begin();
+    }
+
+};
+
+
+// Первый контейнер - vector
+
+class VectorDrinkContainer : public Container
+{
+private:
+    vector<DrinkPtr> VectorDrink;
+public:
+    void AddDrink(DrinkPtr NewDrink){VectorDrink.push_back(NewDrink);}
+    int GetCount() const {return VectorDrink.size();}
+
+    Iterator<DrinkPtr> *GetIterator ()
+    {
+        return new VectorDrinkIterator(&VectorDrink);
+    };
+};
+
+
+// Итератор для list
+
+class ListDrinkIterator : public Iterator<DrinkPtr>
+{
+private:
+    const list<DrinkPtr> *ListDrink;
+    list<DrinkPtr>::const_iterator It;
+public:
+    void First() {It = ListDrink->begin();}
+    void Next() {It++;}
+    bool IsDone() const {It == ListDrink->end();}
+    DrinkPtr GetCurrent() const {*It;};
+    ListDrinkIterator(const list<DrinkPtr> *listDrink)
+    {
+        ListDrink = listDrink;
+        It = ListDrink->begin();
+    }
+};
+
+// Второй контейнер - list
+
+class ListDrinkcontainer : public Container
+{
+private:
+    list<DrinkPtr> ListDrink;
+public:
+    void AddDrink(DrinkPtr NewDrink){ListDrink.push_back(NewDrink);}
+    int GetCount() const {return ListDrink.size();}
+    Iterator<DrinkPtr> *GetIterator ()
+    {
+        return new ListDrinkIterator(&ListDrink);
+    };
+
+};
 
 #endif // MainH
 
