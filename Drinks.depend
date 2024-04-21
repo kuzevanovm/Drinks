@@ -1,9 +1,9 @@
 # depslib dependency file v1.0
-1713649466 source:c:\языки\drinks\main.cpp
+1713718672 source:c:\языки\drinks\main.cpp
 	<iostream>
 	"main.h"
 
-1713718533 c:\языки\drinks\main.h
+1713723525 c:\языки\drinks\main.h
 	<vector>
 	<list>
 	"Patterns.h"

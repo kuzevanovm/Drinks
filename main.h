@@ -59,14 +59,17 @@ public:
     DrinkTemperature GetTemperature() const { return temp; };
     DrinkVolume GetVolume() const { return volume; };
     virtual void Sip() = 0;
+    virtual void SetVolume(DrinkVolume NewVolume) {volume = NewVolume;}
 
     virtual void Cool()
     {
         cout << "Напиток охлажден" << endl;
+        temp = DrinkTemperature::Cold;
     }
     virtual void heat()
     {
         cout << "Напиток подогрет" << endl;
+        temp = DrinkTemperature::Hot;
     }
 
 };
@@ -214,6 +217,89 @@ public:
 
 };
 
+// Декоратор для определения готовности напитка
+
+class ReadyCheckIterator : public IteratorDecorator<DrinkPtr>
+{
+private:
+    Iterator<DrinkPtr> *it;
+    bool DrinkIsReady;
+public:
+    ReadyCheckIterator(Iterator<DrinkPtr> *it, bool DrinkIsReady):IteratorDecorator(it) {}
+    void First()
+    {
+        it->First();
+        while(!it->IsDone() && it->GetCurrent()->IsReady())
+        {
+            Next();
+        }
+    }
+    void Next()
+    {
+        while(!it->IsDone() && it->GetCurrent()->IsReady() != DrinkIsReady)
+        {
+            it->Next();
+        }
+    }
+};
+
+// Декоратор для фильтрации напитков по температуре
+
+class TemperatureFiltrIterator : public IteratorDecorator<DrinkPtr>
+{
+private:
+    Iterator<DrinkPtr> *it;
+    DrinkTemperature RightTemp;
+public:
+    TemperatureFiltrIterator(Iterator<DrinkPtr> *it, DrinkTemperature RightTemp) : IteratorDecorator(it) {}
+    void First()
+    {
+        it->First();
+        while (!it->IsDone() && it->GetCurrent()->GetTemperature() != RightTemp)
+        {
+            it->Next();
+        }
+    }
+    void Next()
+    {
+        it->Next();
+        while (!it->IsDone() && it->GetCurrent()->GetTemperature() != RightTemp)
+        {
+            it->Next();
+        }
+    }
+};
+
+// Декоратор изменеия объема напитка
+
+class DrinkVolumeModifierIterator : public IteratorDecorator<DrinkPtr>
+{
+private:
+    Iterator<DrinkPtr> *it;
+    DrinkVolume newVolume;
+
+public:
+    DrinkVolumeModifierIterator(Iterator<DrinkPtr> *it, DrinkVolume volume) : IteratorDecorator(it), newVolume(volume) {}
+
+    void First() {
+        it->First();
+    }
+
+    void Next() {
+        it->Next();
+    }
+
+    bool IsDone() const {
+        return it->IsDone();
+    }
+
+    DrinkPtr GetCurrent() const
+    {
+        DrinkPtr current = it->GetCurrent();
+        current->SetVolume(newVolume);
+        return current;
+    }
+};
 
 #endif // MainH
 
