@@ -41,7 +41,7 @@ enum class DrinkVolume: int
     Small
 };
 
-// Базовый класс
+// Базовый класс семейства
 
 class Drink
 {
@@ -58,7 +58,7 @@ public:
     DrinkColor GetColor() const { return color; };
     DrinkTemperature GetTemperature() const { return temp; };
     DrinkVolume GetVolume() const { return volume; };
-    virtual void Sip() const;
+    virtual void Sip() = 0;
 
     virtual void Cool()
     {
@@ -131,6 +131,7 @@ public:
     void Sip() { wcout << L"Выпили молоко"; }
 };
 
+// Базовый класс контейнера
 class Container
 {
 public:
@@ -199,7 +200,7 @@ public:
 
 // Второй контейнер - list
 
-class ListDrinkcontainer : public Container
+class ListDrinkContainer : public Container
 {
 private:
     list<DrinkPtr> ListDrink;
@@ -212,6 +213,7 @@ public:
     };
 
 };
+
 
 #endif // MainH
 

@@ -1,7 +1,7 @@
 #ifndef PatternsH
 #define PatternsH
 
-// пишем шаблон итератора
+// шаблон итератора
 
 template<class Type> class Iterator
 {
@@ -38,3 +38,4 @@ public:
 };
 
 #endif // PatternsH
+
