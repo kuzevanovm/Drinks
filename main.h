@@ -11,18 +11,18 @@ using namespace std;
 
 enum class DrinkType: int
 {
-    Coffee,
-    Matcha,
-    Water,
-    Milk,
+    Coffee = 1,
+    Matcha = 2,
+    Water = 3,
+    Milk = 4,
     Unknown = -1
 };
 
 enum class DrinkTemperature: int
 {
-    Cold,
-    Hot,
-    Normal
+    Cold = 1,
+    Hot = 2,
+    Normal = 3
 };
 
 enum class DrinkColor: int
@@ -51,7 +51,10 @@ protected:
     DrinkTemperature temp;
     DrinkColor color;
     DrinkVolume volume;
-    Drink();
+    Drink()
+    {
+         DrinkIsReady = bool(rand()%2);
+    };
 public:
     bool IsReady() const { return DrinkIsReady; }
     virtual DrinkType GetType() const = 0;
@@ -88,8 +91,9 @@ public:
         volume = DrinkVolume::Medium;
         type = DrinkType::Coffee;
     }
+    Coffee(DrinkTemperature Temp) : Drink() { temp = Temp; }
     DrinkType GetType () const { return DrinkType::Coffee; }
-    void Sip() { wcout << L"Выпили кофе"; };
+    void Sip() { wcout << L"Drink coffee" << endl; }
 };
 
 class Matcha : public Drink
@@ -102,8 +106,9 @@ public:
         volume = DrinkVolume::Small;
         type = DrinkType::Matcha;
     }
+    Matcha(DrinkTemperature Temp) : Drink() { temp = Temp; }
     DrinkType GetType () const { return DrinkType::Matcha; }
-    void Sip() { wcout << L"Выпили матчу"; }
+    void Sip() { wcout << L"Drink matcha" << endl; }
 };
 
 class Water : public Drink
@@ -116,8 +121,9 @@ public:
         volume = DrinkVolume::Large;
         type = DrinkType::Water;
     }
+    Water(DrinkTemperature Temp) : Drink() { temp = Temp; }
     DrinkType GetType () const { return DrinkType::Water; }
-    void Sip() { wcout << L"Выпили воду"; }
+    void Sip() { wcout << L"Drink water" << endl; }
 };
 
 class Milk : public Drink
@@ -130,8 +136,9 @@ public:
         volume = DrinkVolume::Medium;
         type = DrinkType::Milk;
     }
+    Milk(DrinkTemperature Temp) : Drink() { temp = Temp; }
     DrinkType GetType () const { return DrinkType::Milk; }
-    void Sip() { wcout << L"Выпили молоко"; }
+    void Sip() { wcout << L"Drink milk" << endl; }
 };
 
 // Базовый класс контейнера
@@ -193,7 +200,7 @@ public:
     void First() {It = ListDrink->begin();}
     void Next() {It++;}
     bool IsDone() const {It == ListDrink->end();}
-    DrinkPtr GetCurrent() const {*It;};
+    DrinkPtr GetCurrent() const {return *It;};
     ListDrinkIterator(const list<DrinkPtr> *listDrink)
     {
         ListDrink = listDrink;
@@ -217,89 +224,93 @@ public:
 
 };
 
-// Декоратор для определения готовности напитка
+// Декоратор фильтр по типу напитка
 
-class ReadyCheckIterator : public IteratorDecorator<DrinkPtr>
+class DrinkTypeDecorator : public IteratorDecorator<DrinkPtr>
 {
 private:
-    Iterator<DrinkPtr> *it;
-    bool DrinkIsReady;
+    DrinkType TargetType;
 public:
-    ReadyCheckIterator(Iterator<DrinkPtr> *it, bool DrinkIsReady):IteratorDecorator(it) {}
+    DrinkTypeDecorator(Iterator<DrinkPtr> *Iterator, DrinkType targetType): IteratorDecorator(Iterator)
+    {
+        TargetType = targetType;
+    }
     void First()
     {
-        it->First();
-        while(!it->IsDone() && it->GetCurrent()->IsReady())
+        Decorator -> First();
+        while (!Decorator -> IsDone()&& Decorator->GetCurrent()->GetType() != TargetType)
         {
-            Next();
+            Decorator->Next();
         }
     }
     void Next()
     {
-        while(!it->IsDone() && it->GetCurrent()->IsReady() != DrinkIsReady)
+        do
         {
-            it->Next();
+            Decorator->Next();
         }
+        while(!Decorator->IsDone()&&Decorator->GetCurrent()->GetType() != TargetType);
     }
 };
 
-// Декоратор для фильтрации напитков по температуре
+// Декоратор по температуре напитка
 
-class TemperatureFiltrIterator : public IteratorDecorator<DrinkPtr>
+class DrinkTemperatureDecorator : public IteratorDecorator<DrinkPtr>
 {
 private:
-    Iterator<DrinkPtr> *it;
-    DrinkTemperature RightTemp;
+    DrinkTemperature TargetTemperature;
 public:
-    TemperatureFiltrIterator(Iterator<DrinkPtr> *it, DrinkTemperature RightTemp) : IteratorDecorator(it) {}
+    DrinkTemperatureDecorator(Iterator<DrinkPtr> *Iterator, DrinkTemperature targetTemperature): IteratorDecorator(Iterator)
+    {
+        TargetTemperature = targetTemperature;
+    }
     void First()
     {
-        it->First();
-        while (!it->IsDone() && it->GetCurrent()->GetTemperature() != RightTemp)
+        Decorator -> First();
+        while (!Decorator -> IsDone()&& Decorator->GetCurrent()->GetTemperature() != TargetTemperature)
         {
-            it->Next();
+            Decorator->Next();
         }
     }
     void Next()
     {
-        it->Next();
-        while (!it->IsDone() && it->GetCurrent()->GetTemperature() != RightTemp)
+        do
         {
-            it->Next();
+            Decorator->Next();
         }
+        while(!Decorator->IsDone()&&Decorator->GetCurrent()->GetTemperature() != TargetTemperature);
     }
 };
 
-// Декоратор изменеия объема напитка
+// Декоратор по определению готовности напитка
 
-class DrinkVolumeModifierIterator : public IteratorDecorator<DrinkPtr>
+class DrinkReadyDecorator : public IteratorDecorator<DrinkPtr>
 {
 private:
-    Iterator<DrinkPtr> *it;
-    DrinkVolume newVolume;
-
+    bool TargetReady;
 public:
-    DrinkVolumeModifierIterator(Iterator<DrinkPtr> *it, DrinkVolume volume) : IteratorDecorator(it), newVolume(volume) {}
-
-    void First() {
-        it->First();
-    }
-
-    void Next() {
-        it->Next();
-    }
-
-    bool IsDone() const {
-        return it->IsDone();
-    }
-
-    DrinkPtr GetCurrent() const
+    DrinkReadyDecorator(Iterator<DrinkPtr> *Iterator, bool targetReady): IteratorDecorator(Iterator)
     {
-        DrinkPtr current = it->GetCurrent();
-        current->SetVolume(newVolume);
-        return current;
+        TargetReady = targetReady;
+    }
+    void First()
+    {
+        Decorator -> First();
+        while (!Decorator -> IsDone()&& Decorator->GetCurrent()->IsReady() != TargetReady)
+        {
+            Decorator->Next();
+        }
+    }
+    void Next()
+    {
+        do
+        {
+            Decorator->Next();
+        }
+        while(!Decorator->IsDone()&&Decorator->GetCurrent()->IsReady() != TargetReady);
     }
 };
+
+
 
 #endif // MainH
-

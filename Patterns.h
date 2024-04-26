@@ -1,7 +1,7 @@
 #ifndef PatternsH
 #define PatternsH
 
-// шаблон итератора
+// Шаблон итератора
 
 template<class Type> class Iterator
 {
@@ -22,18 +22,18 @@ template<class Type>
 class IteratorDecorator : public Iterator<Type>
 {
 protected:
-    Iterator<Type> *It;
+    Iterator<Type> *Decorator;
 
 public:
     IteratorDecorator(Iterator<Type> *it)
     {
-        It = it;
+        Decorator = it;
     }
-    virtual ~IteratorDecorator() { delete It; }
-    virtual void First() {It->First();}
-    virtual void Next() {It->Next();}
-    virtual bool IsDone() const {return It->IsDone();}
-    virtual Type GetCurrent() const {return It->GetCurrent();}
+    virtual ~IteratorDecorator() { delete Decorator; }
+    virtual void First() {Decorator->First();}
+    virtual void Next() {Decorator->Next();}
+    virtual bool IsDone() const {return Decorator->IsDone();}
+    virtual Type GetCurrent() const {return Decorator->GetCurrent();}
 
 };
 
